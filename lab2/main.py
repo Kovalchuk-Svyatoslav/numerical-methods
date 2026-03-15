@@ -89,8 +89,8 @@ def perform_research():
 
     plt.plot(x_fine, y_true, 'k--', alpha=0.3, label='Модель')
     plt.title('Дослідження впливу кроку (п. 1)')
-    plt.legend();
-    plt.grid();
+    plt.legend()
+    plt.grid()
     plt.show()
 
     # 2. Дослідження впливу кількості вузлів (Фіксований крок h=50, змінний інтервал)
@@ -113,8 +113,8 @@ def perform_research():
     plt.plot(x_fine, y_interp_r, 'r', label='Newton (n=25)')
     plt.plot(x_fine, y_true, 'k--', label='Model')
     plt.title('Аналіз ефекту Рунге (Осциляції на краях)')
-    plt.legend();
-    plt.grid();
+    plt.legend()
+    plt.grid()
     plt.show()
     print("При великій кількості вузлів спостерігаються коливання на межах інтервалу.")
 
