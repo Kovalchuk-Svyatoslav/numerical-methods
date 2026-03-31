@@ -74,74 +74,74 @@ def variance(y_true, y_approx):
 # -------------------------------
 # 3. Вибір оптимального ступеня полінома
 # -------------------------------
+if __name__ == '__main__':
+    x_nodes, y_nodes = read_data('data.csv')
+    print("Місяці: ", x_nodes)
+    print("Температури: ", y_nodes)
 
-x_nodes, y_nodes = read_data('data.csv')
-print("Місяці: ", x_nodes)
-print("Температури: ", y_nodes)
+    y_full = y_nodes.copy()
+    max_degree = 1
+    variances = []
 
-y_full = y_nodes.copy()
-max_degree = 1
-variances = []
+    for m in range(1, max_degree + 1):
+        A = form_matrix(x_nodes, m)
+        b_vec = form_vector(x_nodes, y_nodes, m)
+        coef = gauss_solve(A, b_vec, m)
+        y_approx = polynomial(x_nodes, coef)
+        var = variance(y_full, y_approx)
+        variances.append(var)
 
-for m in range(1, max_degree + 1):
-    A = form_matrix(x_nodes, m)
-    b_vec = form_vector(x_nodes, y_nodes, m)
-    coef = gauss_solve(A, b_vec, m)
+    optimal_m = np.argmin(variances)
+    actual_optimal_m = optimal_m + 1
+
+    # -------------------------------
+    # 4. Побудова апроксимації
+    # -------------------------------
+
+    A = form_matrix(x_nodes, actual_optimal_m)
+    b_vec = form_vector(x_nodes, y_nodes, actual_optimal_m)
+    coef = gauss_solve(A, b_vec, actual_optimal_m)
     y_approx = polynomial(x_nodes, coef)
-    var = variance(y_full, y_approx)
-    variances.append(var)
 
-optimal_m = np.argmin(variances)
-actual_optimal_m = optimal_m + 1
+    # -------------------------------
+    # 5. Прогноз на наступні 3 місяці
+    # -------------------------------
 
-# -------------------------------
-# 4. Побудова апроксимації
-# -------------------------------
+    x_future = [25,26,27]
+    y_future = polynomial(x_future, coef)
 
-A = form_matrix(x_nodes, actual_optimal_m)
-b_vec = form_vector(x_nodes, y_nodes, actual_optimal_m)
-coef = gauss_solve(A, b_vec, actual_optimal_m)
-y_approx = polynomial(x_nodes, coef)
+    # -------------------------------
+    # 6. Похибка апроксимації
+    # -------------------------------
 
-# -------------------------------
-# 5. Прогноз на наступні 3 місяці
-# -------------------------------
+    error = np.abs(y_nodes - y_approx)
 
-x_future = [25,26,27]
-y_future = polynomial(x_future, coef)
+    # -------------------------------
+    # 7. Вивід результатів
+    # -------------------------------
 
-# -------------------------------
-# 6. Похибка апроксимації
-# -------------------------------
+    print("\n--- Результати аналізу дисперсії ---")
+    for i, v in enumerate(variances):
+        print(f"Ступінь m = {i+1}: Дисперсія = {v:.6f}")
 
-error = np.abs(y_nodes - y_approx)
+    print(f"\nОбраний оптимальний ступінь: m = {actual_optimal_m}")
 
-# -------------------------------
-# 7. Вивід результатів
-# -------------------------------
+    print(f"\nПрогноз температури на наступні 3 місяці:")
+    for m_n, temp in zip([25, 26, 27], y_future):
+        print(f"Місяць {m_n}: {temp:.2f}°C")
 
-print("\n--- Результати аналізу дисперсії ---")
-for i, v in enumerate(variances):
-    print(f"Ступінь m = {i+1}: Дисперсія = {v:.6f}")
+    plt.figure(figsize=(10, 8))
+    plt.subplot(2, 1, 1)
+    plt.scatter(x_nodes, y_nodes, color='blue', label='Реальні дані')
+    plt.plot(x_nodes, y_approx, color='red', label=f'МНК (m={actual_optimal_m})')
+    plt.title('Апроксимація температури')
+    plt.legend()
+    plt.grid(True, ls=':')
 
-print(f"\nОбраний оптимальний ступінь: m = {actual_optimal_m}")
-
-print(f"\nПрогноз температури на наступні 3 місяці:")
-for m_n, temp in zip([25, 26, 27], y_future):
-    print(f"Місяць {m_n}: {temp:.2f}°C")
-
-plt.figure(figsize=(10, 8))
-plt.subplot(2, 1, 1)
-plt.scatter(x_nodes, y_nodes, color='blue', label='Реальні дані')
-plt.plot(x_nodes, y_approx, color='red', label=f'МНК (m={actual_optimal_m})')
-plt.title('Апроксимація температури')
-plt.legend()
-plt.grid(True, ls=':')
-
-plt.subplot(2, 1, 2)
-plt.bar(x_nodes, error, color='gray', label='Похибка')
-plt.axhline(y=np.mean(error), color='green', ls='--', label='Сер. похибка')
-plt.title('Графік похибок')
-plt.legend()
-plt.tight_layout()
-plt.show()
+    plt.subplot(2, 1, 2)
+    plt.bar(x_nodes, error, color='gray', label='Похибка')
+    plt.axhline(y=np.mean(error), color='green', ls='--', label='Сер. похибка')
+    plt.title('Графік похибок')
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
